@@ -1,7 +1,79 @@
 {% extends "base.html" %}
 {% load static %}
+{% load blog_extras %}
 {% block title %}
 易智鹏的个人网站
 {% endblock title %}
 {% block content %}
+<div class="row pt-1">
+    <aside class="col-2 card mb-2 hvr-glow" style="display: flex">
+        {% show_recent_posts %}
+    </aside>
+    <article class="col-6">
+        <div class="mt-1 mb-1 pr-0 pl-0 " >
+            <a href="/" class="btn btn-sm hvr-pop mr-1 btn-success" >综&nbsp;&nbsp;合</a>
+            {% for column in columns %}
+            <a href="#" class="btn btn-sm hvr-pop mr-1 btn-success" >{{ column }}</a>
+            {% endfor %}
+            <i class="fa fa-search mt-1 mb-1 offset-sm-1" aria-hidden="true">
+                <form class="form-inline" style="display: inline">
+                    <input size="21" type="text" class="form-control " name="search" placeholder="搜索文章..." required>
+                </form>
+            </i>
+            <div>
+                {% if search %}
+                {% if object_list %}
+                <h5><span style="color: red">"{{ search }}"</span>的搜索结果如下：</h5>
+                <hr>
+                {% else %}
+                <h5>暂无<span style="color: red">"{{ search }}"</span>有关的文章。</h5>
+                <hr>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        <a href="{% url 'article:home' %}?search={{ search }}&column={{ column }}&tag={{ tag }}">最新</a>
+        <a href="{% url 'article:home' %}?search={{ search }}&column={{ column }}&tag={{ tag }}&order=total_views">最热</a>
+        {% for article in object_list %}<!--渲染文章-->
+        <div class="card mb-2 hvr-glow" style="display: flex">
+            <div class="row no-gutters align-items-center">
+                <div class="col">
+                    <div class="card-body">
+                        <h4 class="mt-0">
+                            <a href="#" target="_blank" style="font-weight: bold; color: black;text-decoration:none;" class="hvr-forward">
+                                {{ article.title }}
+                            </a>
+                        </h4>
+                        <div class="mb-2">
+                            <a href="#" role="button"
+                               class="btn btn-sm hvr-pop btn-outline-secondary">
+                                {{article.column}}
+                            </a>
+                            <a href="#" style="color: grey;"
+                               class="badge badge-pill badge-light hvr-float-shadow">
+                                总结
+                            </a>
+                        </div>
+                        <p class="mb-0 text-monospace" style="color: grey;">
+                            <i class="fas fa-eye" style="color: lightskyblue;">
+                                100
+                            </i>
+                            <i class="fas fa-heart" style="color: #FF6767;">
+                                200
+                            </i>
+                            <i class="fas fa-comments" style="color: yellowgreen;">
+                                300
+                            </i>
+                            <i class="fas fa-clock" style="color: pink;">
+                                2020-2-6
+                            </i>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </article>
+</div>
+
 {% endblock content %}

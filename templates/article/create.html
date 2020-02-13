@@ -1,0 +1,47 @@
+<!--{% extends "base.html" %}-->
+{% load static %}
+
+{% block title %}
+发表新文章
+{% endblock title %}
+
+{% block content %}
+<form action="." method="post" enctype="multipart/form-data" style="line-height: 35px;">
+    {% csrf_token %}
+    <div class="form-group">
+        <div style="padding: 4px">
+            <div style="display: inline;padding-left: 20px">
+                <a  class="fa fa-arrow-left " aria-hidden="true" href="/" style="text-decoration:none;color:grey;">
+                    返回主页
+                </a>
+            </div>
+            <div style="display: inline;padding:0px 20px;">
+                {{ form.title }}
+                <span><span id="textNum">0</span>/100</span>
+            </div>
+            <div style="display:inline;" >
+                <button type="submit" class="btn btn-danger" style="vertical-align:baseline" >
+                    发布文章
+                </button>
+            </div>
+        </div>
+        <div>
+            {{ form.media }}
+            {{ form.body }}
+        </div>
+    </div>
+</form>
+{% endblock content %}
+
+{% block script %}
+<script>
+    $('#text').on("keyup",function(){
+        $('#textNum').text($('#text').val().length);//这句是在键盘按下时，实时的显示字数
+        if($('#text').val().length > 100){
+            $('#textNum').text(100);//长度大于100时0处显示的也只是100
+            $('#text').val($('#text').val().substring(0,100));//长度大于100时截取钱100个字符
+        }
+    })
+    $('#textNum').text($('#textArea').val().length);//这句是在刷新的时候仍然显示字数
+</script>
+{% endblock script %}
