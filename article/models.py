@@ -14,7 +14,7 @@ from mdeditor.fields import MDTextField
 
 # Create your models here.
 class ArticleColumn(models.Model):
-    title = models.CharField(max_length=10, blank=True,verbose_name='标题')
+    title = models.CharField(max_length=10, blank=True,verbose_name='标题',unique=True)
     created = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -25,7 +25,7 @@ class ArticlePost(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE,default=1)
 
     # 文章标题。models.CharField 为字符串字段，用于保存较短的字符串，比如标题
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=100,unique=True)
 
     tags = TaggableManager(blank=True)
 
@@ -47,7 +47,6 @@ class ArticlePost(models.Model):
         blank=True,
         on_delete=models.CASCADE,
         related_name='article'
-
     )
 
     # 文章正文。
@@ -71,3 +70,10 @@ class ArticlePost(models.Model):
         # return self.title 将文章标题返回
         return self.title
 
+    def increase_views(self):
+        self.total_views += 1
+        self.save(update_fields=['total_views'])
+
+    def increase_likes(self):
+        self.likes += 1
+        self.save(update_fields=['likes'])

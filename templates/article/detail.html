@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}
+{{ article.title }}
+{% endblock title %}
+{% block content %}
+<link href="https://cdn.bootcss.com/highlight.js/9.15.10/styles/github.min.css" rel="stylesheet">
+
+<style>
+    .codehilite {
+        padding: 0;
+    }
+
+    /* for block of numbers */
+    .hljs-ln-numbers {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+
+        text-align: center;
+        color: #ccc;
+        border-right: 1px solid #CCC;
+        vertical-align: top;
+        padding-right: 5px;
+    }
+
+    .hljs-ln-n {
+        width: 30px;
+    }
+
+    /* for block of code */
+    .hljs-ln .hljs-ln-code {
+        padding-left: 10px;
+        white-space: pre;
+    }
+</style>
+<div class="row">
+    <div class="col-2 bg-light border border-1">
+        <div id="sidebar" class="sidebar">
+            <div class="sidebar__inner">
+                <h4><strong>目录</strong></h4>
+                <a href="/"
+                   class="hvr-forward"
+                   style="text-decoration: none;">
+                    返回主页
+                </a>
+                <hr>
+                <div>
+                    {{ article.toc|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-10">
+        <div class="display-4 mb-3" style="border-bottom: 1px solid lightgrey">
+            {{ article.title }}
+        </div>
+        <div class="mb-3 "style="border-bottom: 1px solid lightgrey" >
+                <p class=" text-monospace col-form-label" style="color: grey;">
+                    <i class="fas fa-eye" style="color: lightskyblue;">
+                        {{ article.total_views }}
+                    </i>
+                    <i class="fas fa-heart" style="color: #FF6767;">
+                        {{ article.likes }}
+                    </i>
+                    <i class="fas fa-clock" style="color: pink;">
+                        {{ article.created|date:'Y-m-d' }}
+                    </i>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'article:article_update' article.id%}"
+                           class="hvr-grow  font-weight-bold" style="text-decoration: none;">
+                            编辑文章
+                        </a>
+                    {% endif %}
+                </p>
+
+        </div>
+        <div>
+            {{ article.body|safe }}
+        </div>
+        <div style="text-align:center;" class="mt-4">
+            <button class="btn btn-outline-danger"
+                    type="button"
+                    onclick="validate_is_like(
+                     '{% url 'article:increase_likes' article.id %}',
+                     {{ article.id }},
+                     {{ article.likes }}
+                     )"
+            >
+                <span>点赞</span>
+                <span>
+            <i class="fas fa-heart"></i>
+        </span>
+                <span id="likes_number">
+            {{ article.likes }}
+        </span>
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .sidebar{
+        will-change: min-height;
+    }
+
+    .sidebar__inner{
+        transform: translate(0, 0);
+        transform: translate3d(0, 0, 0);
+        will-change: position, transform;
+    }
+</style>
+{% endblock content %}
+{% block script %}
+    <script src="https://cdn.bootcss.com/highlight.js/9.15.10/highlight.min.js"></script>
+    <script src="https://cdn.bootcss.com/highlightjs-line-numbers.js/2.7.0/highlightjs-line-numbers.min.js"></script>
+    <script>
+        hljs.initHighlightingOnLoad();
+        hljs.initLineNumbersOnLoad();
+    </script>
+    <script src="{% static 'sticky_sidebar/jquery.sticky-sidebar.min.js' %}"></script>
+    <script type="text/javascript">
+        $('#sidebar').stickySidebar({
+            topSpacing: 20,
+            bottomSpacing: 20,
+        });
+    </script>
+    <script src="{% static 'csrf.js' %}"></script>
+    <script>
+        // 点赞功能主函数
+        function validate_is_like(url, id, likes) {
+            // 取出 LocalStorage 中的数据
+            let storage = window.localStorage;
+            const storage_str_data = storage.getItem("my_blog_data");
+            let storage_json_data = JSON.parse(storage_str_data);
+            // 若数据不存在，则创建空字典
+            if (!storage_json_data) {
+                storage_json_data = {}
+            };
+            // 检查当前文章是否已点赞。是则 status = true
+            const status = check_status(storage_json_data, id);
+            if (status) {
+                layer.msg('已经点过赞了哟~');
+                // 点过赞则立即退出函数
+                return;
+            } else {
+                // 用 Jquery 找到点赞数量，并 +1
+                $('span#likes_number').text(likes + 1).css('color', '#dc3545');
+            }
+            // 用 ajax 向后端发送 post 请求
+            $.post(
+                url,
+                // post 只是为了做 csrf 校验，因此数据为空
+                {},
+                function(result) {
+                    if (result === 'success') {
+                        // 尝试修改点赞数据
+                        try {
+                            storage_json_data[id] = true;
+                        } catch (e) {
+                            window.localStorage.clear();
+                        };
+                        // 将字典转换为字符串，以便存储到 LocalStorage
+                        const d = JSON.stringify(storage_json_data);
+                        // 尝试存储点赞数据到 LocalStorage
+                        try {
+                            storage.setItem("my_blog_data", d);
+                        } catch (e) {
+                            // code 22 错误表示 LocalStorage 空间满了
+                            if (e.code === 22) {
+                                window.localStorage.clear();
+                                storage.setItem("my_blog_data", d);
+                            }
+                        };
+                    } else {
+                        layer.msg("与服务器通信失败..过一会儿再试试呗~");
+                    }
+
+                }
+            );
+        };
+
+        // 辅助点赞主函数，验证点赞状态
+        function check_status(data, id) {
+            // 尝试查询点赞状态
+            try {
+                if (id in data && data[id]) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (e) {
+                window.localStorage.clear();
+                return false;
+            };
+        };
+    </script>
+{% endblock script %}

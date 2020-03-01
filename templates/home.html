@@ -6,14 +6,15 @@
 {% endblock title %}
 {% block content %}
 <div class="row pt-1">
-    <aside class="col-2 card mb-2 hvr-glow" style="display: flex">
-        {% show_recent_posts %}
+    <aside class="col-2 card mb-2 hvr-glow " style="display: flex">
+        {% show_hot_articles %}
     </aside>
     <article class="col-6">
         <div class="mt-1 mb-1 pr-0 pl-0 " >
             <a href="/" class="btn btn-sm hvr-pop mr-1 btn-success" >综&nbsp;&nbsp;合</a>
             {% for column in columns %}
-            <a href="#" class="btn btn-sm hvr-pop mr-1 btn-success" >{{ column }}</a>
+            <a href="{% url 'article:home' %}?search={{ search }}&column={{ column.id }}&tag={{ tag }}"
+               class="btn btn-sm hvr-pop mr-1 btn-success" >{{ column }}</a>
             {% endfor %}
             <i class="fa fa-search mt-1 mb-1 offset-sm-1" aria-hidden="true">
                 <form class="form-inline" style="display: inline">
@@ -22,50 +23,55 @@
             </i>
             <div>
                 {% if search %}
-                {% if object_list %}
-                <h5><span style="color: red">"{{ search }}"</span>的搜索结果如下：</h5>
-                <hr>
+                    {% if object_list %}
+                    <h5><span style="color: red">"{{ search }}"</span>的搜索结果如下：
+                        <a href="/"style="color: red;text-decoration:none;" >
+                            返回主页
+                        </a>
+                    </h5>
+                    {% else %}
+                    <h5>暂无<span style="color: red">"{{ search }}"</span>有关的文章。
+                        <a href="/"style="color: red;text-decoration:none;" >
+                            返回主页
+                        </a>
+                    </h5>
+                    {% endif %}
                 {% else %}
-                <h5>暂无<span style="color: red">"{{ search }}"</span>有关的文章。</h5>
-                <hr>
-                {% endif %}
+                    <h5>最新文章</h5>
                 {% endif %}
             </div>
         </div>
-        <a href="{% url 'article:home' %}?search={{ search }}&column={{ column }}&tag={{ tag }}">最新</a>
-        <a href="{% url 'article:home' %}?search={{ search }}&column={{ column }}&tag={{ tag }}&order=total_views">最热</a>
         {% for article in object_list %}<!--渲染文章-->
         <div class="card mb-2 hvr-glow" style="display: flex">
             <div class="row no-gutters align-items-center">
                 <div class="col">
                     <div class="card-body">
                         <h4 class="mt-0">
-                            <a href="#" target="_blank" style="font-weight: bold; color: black;text-decoration:none;" class="hvr-forward">
+                            <a href="{% url 'article:article_detail' article.id %}" style="font-weight: bold; color: black;text-decoration:none;" class="hvr-forward">
                                 {{ article.title }}
                             </a>
                         </h4>
                         <div class="mb-2">
-                            <a href="#" role="button"
-                               class="btn btn-sm hvr-pop btn-outline-secondary">
+                            <a href="{% url 'article:home' %}?search={{ search }}&column={{ article.column_id }}&tag={{ tag }}" role="button"
+                               class="btn btn-sm hvr-pop btn-outline-success">
                                 {{article.column}}
                             </a>
-                            <a href="#" style="color: grey;"
-                               class="badge badge-pill badge-light hvr-float-shadow">
-                                总结
+                            {% for tag in article.tags.all %}
+                            <a href="{% url 'article:home' %}?search={{ search }}&column={{ column }}&tag={{ tag }}"
+                               class="badge badge-pill badge-light hvr-float-shadow text-secondary">
+                                {{ tag }}
                             </a>
+                            {% endfor %}
                         </div>
-                        <p class="mb-0 text-monospace" style="color: grey;">
+                        <p class=" text-monospace col-form-label" style="color: grey;">
                             <i class="fas fa-eye" style="color: lightskyblue;">
-                                100
+                                {{ article.total_views }}
                             </i>
                             <i class="fas fa-heart" style="color: #FF6767;">
-                                200
-                            </i>
-                            <i class="fas fa-comments" style="color: yellowgreen;">
-                                300
+                                {{ article.likes }}
                             </i>
                             <i class="fas fa-clock" style="color: pink;">
-                                2020-2-6
+                                {{ article.created|date:'Y-m-d' }}
                             </i>
                         </p>
                     </div>
@@ -75,5 +81,36 @@
         {% endfor %}
     </article>
 </div>
+
+{% if is_paginated %}
+<div class="pagination row">
+    <div class="m-auto">
+        <!-- 如果当前页还有上一页，显示一个上一页的按钮 -->
+        {% if page_obj.has_previous %}
+        <a href="?page=1&order={{ order }}&search={{ search }}&tag={{ tag }}" class="btn btn-success">
+            &laquo; 1
+        </a>
+        <span>...</span>
+        <a href="?page={{ articles.previous_page_number }}&order={{ order }}&search={{ search }}&tag={{ tag }}"
+           class="btn btn-secondary"
+        >
+            {{ page_obj.previous_page_number }}
+        </a>
+        {% endif %}
+        <!-- 显示当前页面信息 -->
+        <span class="current btn btn-danger btn-lg">{{ page_obj.number }}</span>
+        <!-- 如果当前页还有下一页，显示一个下一页的按钮 -->
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&order={{ order }}&search={{ search }}&tag={{ tag }}"  class="btn btn-secondary">{{ page_obj.next_page_number }}</a>
+        <span>...</span>
+        <a href="?page={{ page_obj.paginator.num_pages }}&order={{ order }}&search={{ search }}&tag={{ tag }}"
+           class="btn btn-success">
+            {{ page_obj.paginator.num_pages }} &raquo;
+        </a>
+        {% endif %}
+        </span>
+    </div>
+</div>
+{% endif %}
 
 {% endblock content %}

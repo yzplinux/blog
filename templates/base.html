@@ -36,7 +36,7 @@
         {% include 'header.html' %}
     </header>
 
-    <main class="container wrapper">
+    <main class="container">
         {% block content %}{% endblock content %}
     </main>
 
@@ -47,6 +47,7 @@
     <!-- 引入jquery S -->
     <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
     <!-- 引入jquery E -->
+    {% include 'back_to_top_func.html' %}
 
     <!-- 引入popper S -->
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"

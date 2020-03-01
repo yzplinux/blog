@@ -13,10 +13,16 @@
             返回主页
         </a>
         <div class="col-7">
-            {{ form.title }}
+            <input type="text"
+                   name="title"
+                   maxlength="100" class="form-control"
+                   placeholder="文章标题" id="text"
+                   required
+                   value="{{ object.title }}"
+            >
         </div>
         <div class="pt-2 pr-2">
-            <span><span id="textNum">0</span>/100</span>
+            <span><span id="textNum">{{ title_len }}</span>/100</span>
         </div>
         <div class="col-2 px-0">
             <button type="submit" class="btn btn-danger" style="vertical-align:baseline" >
@@ -35,13 +41,18 @@
             >
                 <option value="none" >请选择栏目..</option>
                 {% for column in columns %}
-                <option value="{{ column.id }}"  >{{ column }}</option>
+                <option value="{{ column.id }}" selected >{{ column }}</option>
                 {% endfor %}
             </select>
         </div>
         <label for="tags" class="col-form-label" >标签</label>
         <div class="col-3">
-            {{ form.tags }}
+            <input type="text"
+                   class="form-control "
+                   id="tags"
+                   name="tags"
+                   value="{{ tags }}"
+            >
         </div>
     </div>
     <div class="form-group row">

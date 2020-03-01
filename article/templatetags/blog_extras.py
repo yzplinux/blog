@@ -6,8 +6,8 @@ from ..models import ArticlePost
 register = template.Library()
 
 
-@register.inclusion_tag('inclusions/_recent_posts.html', takes_context=True)
-def show_recent_posts(context, num=5):
+@register.inclusion_tag('inclusions/_hot_articles.html', takes_context=True)
+def show_hot_articles(context, num=8):
     return {
-        'recent_post_list': ArticlePost.objects.all().order_by('-created')[:num],
+        'hot_article_list': ArticlePost.objects.all().order_by('-total_views')[:num],
     }
