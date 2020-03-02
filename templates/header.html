@@ -1,0 +1,63 @@
+<!--py {padding-top: 0.5rem !important;margin-bottom: 0.5rem !important}-->
+<div class=" myheader text-center py-1" >
+    <!--用户下拉菜单 S-->
+    <div class="text-right ">
+        {% if user.is_authenticated %}
+        <button type="button" class="btn  dropdown-toggle" data-toggle="dropdown">
+            <a class="fa fa-user fa-3x dropdown"
+               href="{% url 'bloguser:login' %}"
+               style="text-decoration: none;
+                    /*text-decoration: none 去下划线*/
+                    color: blueviolet;">
+<!--                -->
+            </a>
+        </button>
+        <div class="dropdown-menu">
+            <a class="dropdown-item"
+               style="color: blueviolet;"
+               href="{% url 'article:article_create' %}">发表文章
+            </a>
+            <a class="dropdown-item"
+               style="color: blueviolet;"
+               href="{% url 'bloguser:logout' %}">
+                退出登录
+            </a>
+        </div>
+    <!--用户下拉菜单 E-->
+        {% else %}
+        <!--用户登录 S-->
+        <a class="fa fa-sign-in-alt fa-3x"
+           href="{% url 'bloguser:login' %}"
+           style="text-decoration: none;
+                    color: blueviolet;">
+        </a>
+        <!--用户登录 E-->
+        {% endif %}
+    </div>
+    <!--网站logo S-->
+    <h1 class="display-5 mb-1 ">
+        <a class="text-white" href="/"
+           style="text-decoration: none;">
+        易智鹏的个人网站
+        </a>
+    </h1>
+    <!--网站logo E-->
+    <!--导航栏 S-->
+    <div class="container " >
+        <nav class=" navbar navbar-dark navbar-expand-md" >
+            <!--navbar-expand-md 响应式时出现按钮 S-->
+            <button class="navbar-toggler bg-red" data-toggle="collapse" data-target="#menu">
+                <!--#menu 该按钮绑定下面的下拉导航栏-->
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <!--navbar-expand-md 响应式时出现按钮 E-->
+<!--            <div id="menu" class="collapse navbar-collapse" >-->
+<!--                <ul class="navbar-nav" style="margin:0 auto">-->
+<!--                    &lt;!&ndash;style="margin:0 auto" 导航栏居中对齐&ndash;&gt;-->
+<!--                    <li class="nav-item"><a href="#" class=" btn btn-primary btn-lg">学习笔记</a></li>-->
+<!--                    <li class="nav-item"><a href="#" class=" btn btn-danger btn-lg">学习网站</a></li>-->
+<!--                </ul>-->
+<!--            </div>-->
+        </nav>
+    </div>
+</div>
